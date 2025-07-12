@@ -1,6 +1,6 @@
 # Roboflow-MentraOS-Camera-Example-App
 
-This is a simple example app which demonstrates how to use the MentraOS Camera API to take photos, display them in a webview, then to detect faces using [Roboflow](https://roboflow.com).
+This is a simple example app which demonstrates how to take and display pictures with [MentraOS Camera API](https://docs.mentra.glass/camera-tutorial/), then detect faces inside them with [Roboflow](https://roboflow.com).
 
 ## Mentra instructions
 
