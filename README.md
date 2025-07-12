@@ -71,3 +71,15 @@ In this example app, we demonstrate basic inference with an [open-source face de
 1. Photo Capture: When a user takes a photo (via button press or streaming mode), the image is cached locally
 2. Face Detection: The `detectFaces()` method in `index.ts` (lines 240-275) converts the image buffer to base64, POSTs to `https://serverless.roboflow.com/face-detection-mik1i/27` and stores the returned face predictions.
 3. Visual Display: The webview (`views/photo-viewer.ejs`) displays the photo with green bounding boxes around detected faces, showing confidence percentages
+
+### Workflows
+
+We have a shortlist of [pre-built Workflow Templates](https://roboflow.com/workflows/templates) you can use to experiment, like this [Face Blur workflow](https://app.roboflow.com/workflows/embed/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ3b3JrZmxvd0lkIjoiZDN4ZkZjMThxdDVRelZPanVRenciLCJ3b3Jrc3BhY2VJZCI6ImtyT1RBYm5jRmhvUU1DZExPbGU0IiwidXNlcklkIjoiSW1GTElaU2tHYk55OXpiNFV1cWxNelBScHBRMiIsImlhdCI6MTcyNDgwNjg3OX0.JMfQi5kvY7ksrnxDjN-Ema_w3-xIoxud6EEJQ68QGJs) or this [Rock Paper Scissors Judge](https://app.roboflow.com/workflows/embed/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ3b3JrZmxvd0lkIjoidXFSSDgwVlFrcUV5OXp4cHp0bUYiLCJ3b3Jrc3BhY2VJZCI6ImtyT1RBYm5jRmhvUU1DZExPbGU0IiwidXNlcklkIjoiSW1GTElaU2tHYk55OXpiNFV1cWxNelBScHBRMiIsImlhdCI6MTcyNDgwNzAzN30.MOAlWXd6fwRusaL4JIEc2RCfNAfBiOD_Lkt6TPTdang).
+
+### Roboflow AR Examples in the Wild
+
+Check out [Magic Sudoku](https://x.com/braddwyer/status/910030265006923776), [Eddy Xu's Chess Detector App](https://x.com/eddybuild/status/1878263416080482312), and [McKay Wrigley's Keto Diet Detector](https://x.com/mckaywrigley/status/1653464294493921280?lang=en).
+
+### Happy hacking 🚀 🚀 🚀
+
+For Hackathon-ers, Roboflow team will be in-person at the event and available via Discord for questions. Other great resources for getting started are [Roboflow Inference](https://inference.roboflow.com/), [Roboflow Universe](https://universe.roboflow.com/), [Notebooks](https://github.com/roboflow/notebooks) and our [Blog](https://blog.roboflow.com/).
