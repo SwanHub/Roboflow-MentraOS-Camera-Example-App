@@ -62,4 +62,17 @@ Check out the full documentation at [docs.mentra.glass](https://docs.mentra.glas
 
 ## Roboflow & Hackathon instructions
 
-If you are part of the July 12/13th Hackathon, you're eligible for a free month of [Roboflow Basic](https://roboflow.com/pricing) that comes with 30 credits (and more at-will if you run out during the event), full feature functinonality (datasets, model training, deployment) and the chance to win an [NVIDIA Jetson Orin Nano](https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-orin/nano-super-developer-kit/).
+If you are part of the July 12/13th Hackathon, you're eligible for a free month of [Roboflow Basic](https://roboflow.com/pricing) that comes with 30 credits (and more at-will if you run out during the event), full feature functionality (dataset management, model training, low-code workflow builder, deployment) and the chance to win an [NVIDIA Jetson Orin Nano](https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-orin/nano-super-developer-kit/).
+
+In this example app, we demonstrate basic face inference with an [open-source face detection model found on Roboflow Universe](https://universe.roboflow.com/mohamed-traore-2ekkp/face-detection-mik1i/model/27).
+
+### How it works
+
+1. Photo Capture: When a user takes a photo (via button press or streaming mode), the image is cached locally
+2. Face Detection: The `detectFaces()` method in `index.ts` (lines 240-275) sends the image to Roboflow's API:
+
+- Converts the image buffer to base64
+- POSTs to `https://serverless.roboflow.com/face-detection-mik1i/27`
+- Stores the returned face predictions.
+
+3. Visual Display: The webview (`views/photo-viewer.ejs`) displays the photo with green bounding boxes around detected faces, showing confidence percentages
