@@ -1,8 +1,8 @@
-# MentraOS-Camera-Example-App
+# Roboflow-MentraOS-Camera-Example-App
 
-This is a simple example app which demonstrates how to use the MentraOS Camera API to take photos and display them in a webview.
+This is a simple example app which demonstrates how to use the MentraOS Camera API to take photos and display them in a webview, then to detect faces using [Roboflow](https://roboflow.com).
 
-You could also send the photo to an AI api, store it in a database or cloud storage, send it to Roboflow, or do other processing.
+## Mentra instructions
 
 ### Install MentraOS on your phone
 
@@ -59,3 +59,7 @@ MentraOS install links: [mentra.glass/install](https://mentra.glass/install)
 ### Next Steps
 
 Check out the full documentation at [docs.mentra.glass](https://docs.mentra.glass/camera)
+
+## Roboflow & Hackathon instructions
+
+If you are part of the July 12/13th Hackathon, you're eligible for a free month of [Roboflow Basic](https://roboflow.com/pricing) that comes with 30 credits (and more at-will if you run out during the event), full feature functinonality (datasets, model training, deployment) and the chance to win an [NVIDIA Jetson Orin Nano](https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-orin/nano-super-developer-kit/).
