@@ -38,22 +38,23 @@ MentraOS install links: [mentra.glass/install](https://mentra.glass/install)
 
 3. cd into your repo, then type `bun install`
 
-5. Set up your environment variables:
-   * Create a `.env` file in the root directory by copying the example: `cp .env.example .env`
-   * Edit the `.env` file with your app details:
+4. Set up your environment variables:
+
+   - Create a `.env` file in the root directory by copying the example: `cp .env.example .env`
+   - Edit the `.env` file with your app details:
      ```
      PORT=3000
      PACKAGE_NAME=com.yourName.yourAppName
      MENTRAOS_API_KEY=your_api_key_from_console
      ```
-   * Make sure the `PACKAGE_NAME` matches what you registered in the MentraOS Console
-   * Get your `API_KEY` from the MentraOS Developer Console
+   - Make sure the `PACKAGE_NAME` matches what you registered in the MentraOS Console
+   - Get your `API_KEY` from the MentraOS Developer Console
+   - The `ROBOFLOW_API_KEY` is used for face detection - get your own from [Roboflow](https://roboflow.com).
 
-6. Run your app with `bun run dev`
+5. Run your app with `bun run dev`
 
-7. To expose your app to the internet (and thus MentraOS) with ngrok, run: `ngrok http --url=<YOUR_NGROK_URL_HERE> 3000`
-    * `3000` is the port. It must match what is in the app config. For example, if you entered `port: 8080`, use `8080` for ngrok instead.
-
+6. To expose your app to the internet (and thus MentraOS) with ngrok, run: `ngrok http --url=<YOUR_NGROK_URL_HERE> 3000`
+   - `3000` is the port. It must match what is in the app config. For example, if you entered `port: 8080`, use `8080` for ngrok instead.
 
 ### Next Steps
 

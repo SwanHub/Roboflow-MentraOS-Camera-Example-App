@@ -1,95 +1,273 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Photo Viewer</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: #000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      font-family: Arial, sans-serif;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Photo Viewer</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        font-family: Arial, sans-serif;
+      }
 
-    .photo-container {
-      max-width: 100vw;
-      max-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+      .photo-container {
+        max-width: 100vw;
+        max-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+      }
 
-    .photo {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-      border-radius: 8px;
-    }
+      .photo {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        border-radius: 8px;
+      }
 
-    .no-photo {
-      color: white;
-      text-align: center;
-      font-size: 18px;
-    }
+      .overlay-container {
+        position: relative;
+        display: inline-block;
+      }
 
-    .loading {
-      color: white;
-      text-align: center;
-      font-size: 16px;
-    }
-  </style>
-</head>
-<body>
-  <div class="photo-container">
-    <div id="content" class="loading">Loading latest photo...</div>
-  </div>
+      .face-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        border-radius: 8px;
+      }
 
-  <script>
-    let currentRequestId = null;
+      .no-photo {
+        color: white;
+        text-align: center;
+        font-size: 18px;
+      }
 
-    /**
-     * Check for new photos and update display
-     */
-    async function checkForNewPhoto() {
-      try {
-        const response = await fetch('/api/latest-photo');
+      .loading {
+        color: white;
+        text-align: center;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="photo-container">
+      <div id="content" class="loading">Loading latest photo...</div>
+    </div>
 
-        if (response.status === 404) {
-          // No photo available
-          document.getElementById('content').innerHTML =
-            '<div class="no-photo">No photos taken yet. Take a photo using your Mentra Live by pressing the right button!</div>';
+    <script>
+      let currentRequestId = null;
+
+      /**
+       * Draw face detection boxes on the overlay canvas
+       */
+      function drawFaceBoxes(canvas, photo, faces) {
+        const ctx = canvas.getContext("2d");
+
+        // Clear previous drawings
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (!faces || faces.length === 0) {
           return;
         }
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch photo info');
-        }
+        // Set up drawing styles
+        ctx.strokeStyle = "#00ff00"; // Green boxes
+        ctx.fillStyle = "#00ff00";
+        ctx.lineWidth = 3;
+        ctx.font = "16px Arial";
 
-        const photoInfo = await response.json();
+        faces.forEach((face, index) => {
+          // Calculate scale factors based on displayed image size vs actual image size
+          const scaleX = canvas.width / photo.naturalWidth;
+          const scaleY = canvas.height / photo.naturalHeight;
 
-        // Check if this is a new photo
-        if (photoInfo.requestId !== currentRequestId) {
-          currentRequestId = photoInfo.requestId;
+          // Calculate box position and size
+          const x = (face.x - face.width / 2) * scaleX;
+          const y = (face.y - face.height / 2) * scaleY;
+          const width = face.width * scaleX;
+          const height = face.height * scaleY;
 
-          // Update the display with new photo
-          document.getElementById('content').innerHTML =
-            '<img class="photo" src="/api/photo/' + photoInfo.requestId + '" alt="Latest Photo" />';
-        }
-      } catch (error) {
-        console.error('Error checking for new photo:', error);
-        document.getElementById('content').innerHTML =
-          '<div class="no-photo">Error loading photo. Please refresh the page.</div>';
+          // Draw bounding box
+          ctx.strokeRect(x, y, width, height);
+
+          // Draw confidence label
+          const label = `Face ${index + 1}: ${(face.confidence * 100).toFixed(
+            1
+          )}%`;
+          const textY = y > 25 ? y - 5 : y + height + 20;
+
+          // Draw text background
+          const textMetrics = ctx.measureText(label);
+          ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+          ctx.fillRect(x, textY - 16, textMetrics.width + 8, 20);
+
+          // Draw text
+          ctx.fillStyle = "#00ff00";
+          ctx.fillText(label, x + 4, textY);
+        });
       }
-    }
 
-    // Check for new photos every 500ms (twice per second)
-    checkForNewPhoto(); // Initial check
-    setInterval(checkForNewPhoto, 500);
-  </script>
-</body>
+      /**
+       * Create photo with face overlay (faces will be added asynchronously)
+       */
+      function createPhotoWithOverlay(requestId) {
+        const overlayHtml = `
+        <div class="overlay-container">
+          <img class="photo" id="photo-${requestId}" src="/api/photo/${requestId}" alt="Latest Photo" />
+          <canvas class="face-overlay" id="canvas-${requestId}"></canvas>
+          <div id="face-status-${requestId}" style="position: absolute; bottom: 10px; left: 10px; color: #00ff00; background: rgba(0,0,0,0.7); padding: 5px 10px; border-radius: 3px; font-size: 12px;">
+            Processing face detection...
+          </div>
+        </div>
+      `;
+
+        document.getElementById("content").innerHTML = overlayHtml;
+
+        // Start checking for face data asynchronously
+        waitForFaceData(requestId);
+      }
+
+      /**
+       * Fetch face detection data for a specific photo
+       */
+      async function fetchFaceData(requestId) {
+        try {
+          const response = await fetch(`/api/faces/${requestId}`);
+          if (response.status === 404) {
+            return null; // No face data available yet
+          }
+          if (!response.ok) {
+            throw new Error("Failed to fetch face data");
+          }
+          const data = await response.json();
+          return data.faces;
+        } catch (error) {
+          console.error("Error fetching face data:", error);
+          return null;
+        }
+      }
+
+      /**
+       * Keep checking for face data for a specific photo and update overlay when available
+       */
+      async function waitForFaceData(
+        requestId,
+        maxAttempts = 20,
+        intervalMs = 500
+      ) {
+        let attempts = 0;
+
+        const updateStatus = (message) => {
+          const statusDiv = document.getElementById(`face-status-${requestId}`);
+          if (statusDiv) {
+            statusDiv.textContent = message;
+          }
+        };
+
+        const checkFaces = async () => {
+          attempts++;
+          const faces = await fetchFaceData(requestId);
+
+          if (faces !== null) {
+            // Face data is available, update the overlay
+            const photo = document.getElementById(`photo-${requestId}`);
+            const canvas = document.getElementById(`canvas-${requestId}`);
+
+            if (photo && canvas) {
+              // Ensure photo is loaded before drawing
+              if (photo.complete && photo.naturalHeight !== 0) {
+                const rect = photo.getBoundingClientRect();
+                canvas.width = rect.width;
+                canvas.height = rect.height;
+                drawFaceBoxes(canvas, photo, faces);
+              } else {
+                // Wait for photo to load
+                photo.onload = function () {
+                  const rect = photo.getBoundingClientRect();
+                  canvas.width = rect.width;
+                  canvas.height = rect.height;
+                  drawFaceBoxes(canvas, photo, faces);
+                };
+              }
+            }
+
+            // Update status message
+            const faceCount = faces.length;
+            if (faceCount > 0) {
+              updateStatus(
+                `${faceCount} face${faceCount === 1 ? "" : "s"} detected`
+              );
+            } else {
+              updateStatus("No faces detected");
+            }
+
+            return true; // Success
+          }
+
+          if (attempts < maxAttempts) {
+            // Update status to show we're still trying
+            updateStatus(
+              `Processing face detection... (${attempts}/${maxAttempts})`
+            );
+            setTimeout(checkFaces, intervalMs);
+          } else {
+            console.log("Face detection timeout for photo", requestId);
+            updateStatus("Face detection timeout");
+          }
+
+          return false;
+        };
+
+        // Start checking immediately
+        checkFaces();
+      }
+
+      /**
+       * Check for new photos and update display
+       */
+      async function checkForNewPhoto() {
+        try {
+          const response = await fetch("/api/latest-photo");
+
+          if (response.status === 404) {
+            // No photo available
+            document.getElementById("content").innerHTML =
+              '<div class="no-photo">No photos taken yet. Take a photo using your Mentra Live by pressing the right button!</div>';
+            return;
+          }
+
+          if (!response.ok) {
+            throw new Error("Failed to fetch photo info");
+          }
+
+          const photoInfo = await response.json();
+
+          // Check if this is a new photo
+          if (photoInfo.requestId !== currentRequestId) {
+            currentRequestId = photoInfo.requestId;
+
+            // Update the display with new photo (face detection will be added asynchronously)
+            createPhotoWithOverlay(photoInfo.requestId);
+          }
+        } catch (error) {
+          console.error("Error checking for new photo:", error);
+          document.getElementById("content").innerHTML =
+            '<div class="no-photo">Error loading photo. Please refresh the page.</div>';
+        }
+      }
+
+      // Check for new photos every 500ms (twice per second)
+      checkForNewPhoto(); // Initial check
+      setInterval(checkForNewPhoto, 500);
+    </script>
+  </body>
 </html>
